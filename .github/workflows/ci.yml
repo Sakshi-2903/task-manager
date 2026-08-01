@@ -94,6 +94,7 @@ jobs:
           context: ./backend
           push: false
           cache-from: type=gha,scope=backend
+          tags: ghcr.io/${{ github.repository_owner }}/taskmanager-backend:ci
 
       - name: Build frontend
         uses: docker/build-push-action@v6
@@ -101,3 +102,4 @@ jobs:
           context: ./frontend
           push: false
           cache-from: type=gha,scope=frontend
+          tags: ghcr.io/${{ github.repository_owner }}/taskmanager-frontend:ci

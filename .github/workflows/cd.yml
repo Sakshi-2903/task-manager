@@ -41,11 +41,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.value }}
+      owner: ${{ steps.tag.outputs.owner }}
     steps:
       - uses: actions/checkout@v4
 
       - id: tag
-        run: echo "value=sha-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "value=sha-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -63,8 +66,8 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-backend:${{ steps.tag.outputs.value }}
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-backend:latest
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:${{ steps.tag.outputs.value }}
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:latest
           cache-from: type=gha,scope=backend-multi
 
       - name: Push frontend
@@ -74,8 +77,8 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-frontend:latest
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest
           cache-from: type=gha,scope=frontend-multi
 
   verify:
@@ -102,7 +105,7 @@ jobs:
       - name: Load the images that were just published
         env:
           TAG: ${{ needs.publish.outputs.tag }}
-          OWNER: ${{ github.repository_owner }}
+          OWNER: ${{ needs.publish.outputs.owner }}
         run: |
           for service in backend frontend; do
             image="$REGISTRY/$OWNER/taskmanager-$service:$TAG"
@@ -185,7 +188,7 @@ jobs:
         working-directory: k8s/overlays/prod
         env:
           TAG: ${{ needs.publish.outputs.tag }}
-          OWNER: ${{ github.repository_owner }}
+          OWNER: ${{ needs.publish.outputs.owner }}
         run: |
           kustomize edit set image \
             "taskmanager-backend=$REGISTRY/$OWNER/taskmanager-backend:$TAG" \

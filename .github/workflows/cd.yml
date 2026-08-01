@@ -63,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          file: ./backend/Dockerfile
+          file: ${{ github.workspace }}/backend/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           push: true
           provenance: false
@@ -77,7 +77,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile
+          file: ${{ github.workspace }}/frontend/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           push: true
           provenance: false

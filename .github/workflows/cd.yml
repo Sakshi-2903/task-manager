@@ -32,11 +32,10 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
       - run: python -m venv .venv
-      - run: . .venv/bin/activate && pip install -r requirements-dev.txt
-      - run: . .venv/bin/activate && ruff check .
-      - run: |
-          . .venv/bin/activate
-          python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - run: ./.venv/bin/python -m pip install --upgrade pip
+      - run: ./.venv/bin/python -m pip install -r requirements-dev.txt
+      - run: ./.venv/bin/python -m ruff check .
+      - run: ./.venv/bin/python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
 
   publish:
     name: Build and push

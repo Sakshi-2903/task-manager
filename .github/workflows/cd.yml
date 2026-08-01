@@ -89,7 +89,7 @@ jobs:
             --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} \
             --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest \
             --push \
-            ./frontend
+            .
 
   verify:
     name: Deploy to throwaway cluster

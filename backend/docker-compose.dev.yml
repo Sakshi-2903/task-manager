@@ -1,0 +1,14 @@
+# Local MongoDB only. The Flask app runs on the host during Phase 1.
+# Start with:  docker compose -f docker-compose.dev.yml up -d
+services:
+  mongo:
+    image: mongo:7
+    container_name: taskmanager-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

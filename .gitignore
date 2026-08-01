@@ -1,0 +1,29 @@
+# Root-level shared ignores
+.DS_Store
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+
+# Python / backend artifacts
+**/__pycache__/
+**/.venv/
+**/*.py[cod]
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+**/.ruff_cache/
+
+# Node / frontend artifacts
+**/node_modules/
+**/dist/
+**/.vite/
+
+# Repo metadata
+.git

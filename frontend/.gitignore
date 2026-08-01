@@ -1,0 +1,8 @@
+# Frontend-specific Node ignores
+node_modules/
+dist/
+.vite/
+.env
+*.md
+Dockerfile
+.dockerignore

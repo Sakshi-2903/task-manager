@@ -1,0 +1,66 @@
+# Rendered at container start: the nginx entrypoint runs envsubst over every
+# file in /etc/nginx/templates, replacing only names that exist in the
+# environment. nginx's own $uri / $host variables are left alone.
+
+server {
+    listen 8080;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Needed because proxy_pass below uses a variable. Without it nginx would
+    # resolve the backend hostname once at startup and cache it forever, so a
+    # backend pod getting a new IP during a rolling deploy would 502.
+    resolver ${DNS_RESOLVER} valid=10s ipv6=off;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+
+    server_tokens off;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+
+    # Hashed filenames, so they can never go stale.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # index.html must not be cached or users keep booting the old bundle after
+    # a deploy.
+    location = /index.html {
+        add_header Cache-Control "no-store";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        set $upstream http://${BACKEND_HOST}:${BACKEND_PORT};
+        proxy_pass $upstream;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 30s;
+    }
+
+    location /readyz {
+        set $upstream_ready http://${BACKEND_HOST}:${BACKEND_PORT};
+        proxy_pass $upstream_ready;
+        proxy_set_header Host $host;
+        access_log off;
+    }
+
+    # nginx's own liveness, answered without touching the backend.
+    location = /nginx-health {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 "ok\n";
+    }
+}

@@ -1,0 +1,13 @@
+# Backend-specific Python ignores
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Backend local env and docs
+.env
+*.md

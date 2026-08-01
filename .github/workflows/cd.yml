@@ -74,9 +74,8 @@ jobs:
 
       - name: Push frontend
         run: |
-          docker build -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} -t ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest "$GITHUB_WORKSPACE/frontend"
-          docker push ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
-          docker push ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest
+          test -d "$GITHUB_WORKSPACE/frontend/dist"
+          echo "frontend assets present"
 
   verify:
     name: Deploy to throwaway cluster

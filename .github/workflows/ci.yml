@@ -93,23 +93,7 @@ jobs:
         run: echo "value=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Build backend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend
-          file: ${{ github.workspace }}/backend/Dockerfile
-          push: false
-          provenance: false
-          sbom: false
-          cache-from: type=gha,scope=backend
-          tags: ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-backend:ci
+        run: docker build -f "$GITHUB_WORKSPACE/backend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-backend:ci ./backend
 
       - name: Build frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: ${{ github.workspace }}/frontend/Dockerfile
-          push: false
-          provenance: false
-          sbom: false
-          cache-from: type=gha,scope=frontend
-          tags: ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-frontend:ci
+        run: docker build -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-frontend:ci ./frontend

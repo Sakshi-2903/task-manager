@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: backend/requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
-      - run: pytest
+      - run: pytest --cov=app --cov-report=term-missing --cov-report=xml
 
   publish:
     name: Build and push
@@ -60,32 +60,24 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push backend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend
-          file: ${{ github.workspace }}/backend/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
-          push: true
-          provenance: false
-          sbom: false
-          tags: |
-            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:${{ steps.tag.outputs.value }}
-            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:latest
-          cache-from: type=gha,scope=backend-multi
+        run: |
+          docker buildx build \
+            --platform ${{ env.PLATFORMS }} \
+            --file "$GITHUB_WORKSPACE/backend/Dockerfile" \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:${{ steps.tag.outputs.value }} \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:latest \
+            --push \
+            ./backend
 
       - name: Push frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: ${{ github.workspace }}/frontend/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
-          push: true
-          provenance: false
-          sbom: false
-          tags: |
-            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
-            ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest
-          cache-from: type=gha,scope=frontend-multi
+        run: |
+          docker buildx build \
+            --platform ${{ env.PLATFORMS }} \
+            --file "$GITHUB_WORKSPACE/frontend/Dockerfile" \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest \
+            --push \
+            ./frontend
 
   verify:
     name: Deploy to throwaway cluster

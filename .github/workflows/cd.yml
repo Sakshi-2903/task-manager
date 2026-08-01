@@ -63,8 +63,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend
+          file: ./backend/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           push: true
+          provenance: false
+          sbom: false
           tags: |
             ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-backend:latest
@@ -74,8 +77,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
+          file: ./frontend/Dockerfile
           platforms: ${{ env.PLATFORMS }}
           push: true
+          provenance: false
+          sbom: false
           tags: |
             ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest

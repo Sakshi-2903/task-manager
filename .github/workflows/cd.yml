@@ -125,12 +125,25 @@ jobs:
           kubectl -n taskmanager rollout status deploy/backend --timeout=180s
           kubectl -n taskmanager rollout status deploy/frontend --timeout=120s
 
+      - name: Wait for ingress and pods
+        run: |
+          for attempt in $(seq 1 30); do
+            kubectl -n taskmanager get pods >/dev/null 2>&1 || true
+            ready=$(kubectl -n taskmanager get pods -o jsonpath='{range .items[*]}{.metadata.name}:{.status.phase}:{range .status.containerStatuses[*]}{.ready}{","}{end}{"\n"}{end}' 2>/dev/null | grep -E 'backend|frontend|mongo' || true)
+            if echo "$ready" | grep -q 'Running:true'; then
+              break
+            fi
+            sleep 2
+          done
+
       - name: Smoke test through the ingress
         run: |
           host="tasks.127.0.0.1.nip.io"
-          for attempt in $(seq 1 30); do
+          for attempt in $(seq 1 60); do
             code=$(curl -s -o /dev/null -w '%{http_code}' -H "Host: $host" http://localhost:8081/api/tasks || true)
-            [ "$code" = "200" ] && break
+            if [ "$code" = "200" ]; then
+              break
+            fi
             sleep 2
           done
           [ "$code" = "200" ] || { echo "ingress never became healthy"; exit 1; }

@@ -97,6 +97,8 @@ jobs:
         with:
           context: ./backend
           push: false
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=backend
           tags: ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-backend:ci
 
@@ -105,5 +107,7 @@ jobs:
         with:
           context: ./frontend
           push: false
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=frontend
           tags: ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-frontend:ci

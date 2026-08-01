@@ -1,6 +1,7 @@
 """Gunicorn settings, read from the environment so the same image runs
 anywhere."""
 import os
+import tempfile
 
 bind = f"0.0.0.0:{os.getenv('PORT', '5001')}"
 
@@ -22,3 +23,6 @@ accesslog = "-"
 errorlog = "-"
 loglevel = os.getenv("LOG_LEVEL", "info")
 access_log_format = '%(h)s "%(r)s" %(s)s %(b)s %(M)sms'
+
+metrics_dir = os.getenv("PROMETHEUS_MULTIPROC_DIR", tempfile.gettempdir())
+os.environ.setdefault("PROMETHEUS_MULTIPROC_DIR", metrics_dir)

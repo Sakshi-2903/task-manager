@@ -4,9 +4,11 @@
 mongomock database and run without a live MongoDB.
 """
 import logging
+import time
 
-from flask import Flask
+from flask import Flask, Response, request
 from flask_cors import CORS
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, Counter, Gauge, generate_latest
 from pymongo import ASCENDING, DESCENDING, MongoClient
 from pymongo.errors import PyMongoError
 
@@ -15,6 +17,25 @@ from .errors import register_error_handlers
 from .fallback_db import FallbackDatabase
 
 log = logging.getLogger(__name__)
+
+REGISTRY = CollectorRegistry(auto_describe=True)
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total number of HTTP requests",
+    ["method", "endpoint", "status_code"],
+    registry=REGISTRY,
+)
+REQUEST_LATENCY = Gauge(
+    "http_request_duration_seconds",
+    "HTTP request latency in seconds",
+    ["method", "endpoint"],
+    registry=REGISTRY,
+)
+ACTIVE_CONNECTIONS = Gauge(
+    "active_connections",
+    "Current active connections",
+    registry=REGISTRY,
+)
 
 
 def create_app(config_object=None, db=None):
@@ -52,6 +73,32 @@ def create_app(config_object=None, db=None):
 
     _ensure_indexes(app)
     register_error_handlers(app)
+
+    @app.before_request
+    def _before_request():
+        app.config["_request_started_at"] = time.perf_counter()
+        ACTIVE_CONNECTIONS.inc()
+
+    @app.after_request
+    def _after_request(response):
+        REQUEST_COUNT.labels(
+            method=request.method,
+            endpoint=request.path,
+            status_code=response.status_code,
+        ).inc()
+
+        started_at = app.config.pop("_request_started_at", None)
+        if started_at is not None:
+            REQUEST_LATENCY.labels(method=request.method, endpoint=request.path).set(
+                time.perf_counter() - started_at
+            )
+        ACTIVE_CONNECTIONS.dec()
+        return response
+
+    @app.route("/metrics")
+    def metrics():
+        payload = generate_latest(REGISTRY)
+        return Response(payload, mimetype=CONTENT_TYPE_LATEST)
 
     from .routes.health import health_bp
     from .routes.tasks import tasks_bp

@@ -9,7 +9,7 @@ FROM base AS runtime
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir gunicorn==22.0.0 flask-cors==4.0.1
+    && pip install --no-cache-dir gunicorn==22.0.0 flask-cors==4.0.1 prometheus-client==0.20.0
 
 COPY app ./app
 COPY wsgi.py gunicorn.conf.py ./

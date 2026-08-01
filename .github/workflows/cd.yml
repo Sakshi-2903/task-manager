@@ -56,6 +56,12 @@ jobs:
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
       - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -73,8 +79,11 @@ jobs:
             ./backend
 
       - name: Push frontend
+        working-directory: frontend
         run: |
-          test -d "$GITHUB_WORKSPACE/frontend/dist"
+          npm ci
+          npm run build
+          test -d dist
           echo "frontend assets present"
 
   verify:

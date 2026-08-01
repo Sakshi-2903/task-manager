@@ -95,10 +95,19 @@ jobs:
         id: owner
         run: echo "value=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Build backend
         run: docker build -f "$GITHUB_WORKSPACE/backend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-backend:ci ./backend
 
       - name: Build frontend
+        working-directory: frontend
         run: |
-          test -d "$GITHUB_WORKSPACE/frontend/dist"
+          npm ci
+          npm run build
+          test -d dist
           echo "frontend assets present"

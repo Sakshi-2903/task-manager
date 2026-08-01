@@ -33,6 +33,10 @@ spec:
           env:
             - name: MONGO_URI
               value: mongodb://10.43.0.10:27017
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]
           readinessProbe:
             httpGet:
               path: /readyz

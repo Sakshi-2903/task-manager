@@ -28,14 +28,16 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
 
-      - run: pip install -r requirements-dev.txt
+      - run: python -m venv .venv
+      - run: . .venv/bin/activate && pip install -r requirements-dev.txt
 
       - name: Lint
-        run: ruff check .
+        run: . .venv/bin/activate && ruff check .
 
       - name: Test
         run: |
-          ./.venv/bin/python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
+          . .venv/bin/activate
+          python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
         if: always()

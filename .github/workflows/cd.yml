@@ -78,12 +78,18 @@ jobs:
             ./backend
 
       - name: Push frontend
-        working-directory: frontend
         run: |
+          cd frontend
           npm ci
           npm run build
           test -d dist
-          echo "frontend assets present"
+          docker buildx build \
+            --platform ${{ env.PLATFORMS }} \
+            --file "$GITHUB_WORKSPACE/frontend/Dockerfile" \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} \
+            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest \
+            --push \
+            ./frontend
 
   verify:
     name: Deploy to throwaway cluster

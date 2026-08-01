@@ -34,7 +34,7 @@ jobs:
         run: ruff check .
 
       - name: Test
-        run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+        run: python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
         if: always()
@@ -96,4 +96,4 @@ jobs:
         run: docker build -f "$GITHUB_WORKSPACE/backend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-backend:ci ./backend
 
       - name: Build frontend
-        run: docker build -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-frontend:ci ./frontend
+        run: docker build -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ghcr.io/${{ steps.owner.outputs.value }}/taskmanager-frontend:ci "$GITHUB_WORKSPACE/frontend"

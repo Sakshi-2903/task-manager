@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: backend/requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
-      - run: pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - run: python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
 
   publish:
     name: Build and push
@@ -77,7 +77,7 @@ jobs:
             --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} \
             --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest \
             --push \
-            ./frontend
+            "$GITHUB_WORKSPACE/frontend"
 
   verify:
     name: Deploy to throwaway cluster

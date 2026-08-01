@@ -33,7 +33,9 @@ jobs:
           cache-dependency-path: backend/requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
-      - run: python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
+      - run: |
+          source .venv/bin/activate
+          python -m pytest --cov=app --cov-report=term-missing --cov-report=xml
 
   publish:
     name: Build and push

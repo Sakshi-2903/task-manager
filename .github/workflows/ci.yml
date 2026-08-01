@@ -24,12 +24,12 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.11.9"
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
 
       - run: python -m venv .venv
-      - run: ./.venv/bin/python -m pip install --upgrade pip
+      - run: ./.venv/bin/python -m pip install --upgrade pip setuptools wheel
       - run: ./.venv/bin/python -m pip install -r requirements-dev.txt
 
       - name: Lint

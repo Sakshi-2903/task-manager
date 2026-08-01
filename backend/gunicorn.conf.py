@@ -1,6 +1,5 @@
 """Gunicorn settings, read from the environment so the same image runs
 anywhere."""
-import multiprocessing
 import os
 
 bind = f"0.0.0.0:{os.getenv('PORT', '5001')}"

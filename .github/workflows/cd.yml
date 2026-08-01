@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push backend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           file: ${{ github.workspace }}/backend/Dockerfile
@@ -74,7 +74,7 @@ jobs:
           cache-from: type=gha,scope=backend-multi
 
       - name: Push frontend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           file: ${{ github.workspace }}/frontend/Dockerfile

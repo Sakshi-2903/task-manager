@@ -4,12 +4,17 @@ from datetime import datetime, timezone
 
 
 class _Cursor(list):
-    def sort(self, field, direction):
-        self[:] = sorted(
-            self,
-            key=lambda doc: doc.get(field, datetime.min.replace(tzinfo=timezone.utc)),
-            reverse=direction == -1,
-        )
+    def sort(self, key_or_list, direction=None):
+        if isinstance(key_or_list, list):
+            sort_keys = key_or_list
+        else:
+            sort_keys = [(key_or_list, direction)]
+        for field, direc in reversed(sort_keys):
+            self[:] = sorted(
+                self,
+                key=lambda doc, f=field: doc.get(f, datetime.min.replace(tzinfo=timezone.utc)),
+                reverse=direc == -1,
+            )
         return self
 
     def skip(self, count):

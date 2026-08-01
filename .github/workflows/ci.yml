@@ -90,7 +90,7 @@ jobs:
 
       - name: Normalize repository owner
         id: owner
-        run: echo "value=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+        run: echo "value=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Build backend
         uses: docker/build-push-action@v6

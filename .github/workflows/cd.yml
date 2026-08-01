@@ -48,7 +48,7 @@ jobs:
       - id: tag
         run: |
           echo "value=sha-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-          echo "owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3

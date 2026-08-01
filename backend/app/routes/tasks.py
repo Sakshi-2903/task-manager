@@ -59,7 +59,7 @@ def list_tasks():
     cursor = (
         _tasks()
         .find(query)
-        .sort("created_at", -1)
+        .sort([("created_at", -1), ("_id", -1)])
         .skip((page - 1) * limit)
         .limit(limit)
     )

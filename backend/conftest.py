@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import mongomock
 import pytest
 
@@ -25,6 +27,10 @@ def make_task(client):
     def _make(**overrides):
         payload = {"title": "sample task"}
         payload.update(overrides)
+
+        if "created_at" not in payload:
+            payload["created_at"] = datetime.now(timezone.utc).isoformat()
+
         response = client.post("/api/tasks", json=payload)
         assert response.status_code == 201, response.get_json()
         return response.get_json()

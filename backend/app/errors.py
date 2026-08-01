@@ -1,30 +1,38 @@
-from __future__ import annotations
+"""Uniform JSON error shape for the whole API:
 
-from typing import Any
-
-from flask import Flask, jsonify
+    {"error": {"message": "...", "status": 400, "details": {...}}}
+"""
+from flask import jsonify
+from werkzeug.exceptions import HTTPException
 
 
 class ApiError(Exception):
-    def __init__(self, message: str, status_code: int = 400, payload: dict[str, Any] | None = None) -> None:
+    """Raise anywhere in a request to return a controlled JSON error."""
+
+    def __init__(self, message, status=400, details=None):
         super().__init__(message)
         self.message = message
-        self.status_code = status_code
-        self.payload = payload or {}
+        self.status = status
+        self.details = details or {}
 
-    def to_dict(self) -> dict[str, Any]:
-        return {"error": self.message, **self.payload}
+    def to_dict(self):
+        body = {"message": self.message, "status": self.status}
+        if self.details:
+            body["details"] = self.details
+        return {"error": body}
 
 
-def register_error_handlers(app: Flask) -> None:
+def register_error_handlers(app):
     @app.errorhandler(ApiError)
-    def handle_api_error(error: ApiError):
-        return jsonify(error.to_dict()), error.status_code
+    def _api_error(exc):
+        return jsonify(exc.to_dict()), exc.status
 
-    @app.errorhandler(404)
-    def handle_not_found(_error):
-        return jsonify({"error": "Resource not found"}), 404
+    @app.errorhandler(HTTPException)
+    def _http_error(exc):
+        # Catches 404 / 405 / 415 so clients never receive Werkzeug's HTML page.
+        return jsonify({"error": {"message": exc.description, "status": exc.code}}), exc.code
 
-    @app.errorhandler(500)
-    def handle_internal_error(_error):
-        return jsonify({"error": "Internal server error"}), 500
+    @app.errorhandler(Exception)
+    def _unexpected(exc):
+        app.logger.exception("Unhandled exception")
+        return jsonify({"error": {"message": "Internal server error", "status": 500}}), 500

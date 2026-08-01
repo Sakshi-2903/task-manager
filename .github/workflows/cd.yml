@@ -74,13 +74,9 @@ jobs:
 
       - name: Push frontend
         run: |
-          docker buildx build \
-            --platform ${{ env.PLATFORMS }} \
-            --file "$GITHUB_WORKSPACE/frontend/Dockerfile" \
-            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} \
-            --tag ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest \
-            --push \
-            "$GITHUB_WORKSPACE/frontend"
+          docker build -f "$GITHUB_WORKSPACE/frontend/Dockerfile" -t ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }} -t ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest "$GITHUB_WORKSPACE/frontend"
+          docker push ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
+          docker push ${{ env.REGISTRY }}/${{ steps.tag.outputs.owner }}/taskmanager-frontend:latest
 
   verify:
     name: Deploy to throwaway cluster

@@ -66,7 +66,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-backend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-backend:latest
           cache-from: type=gha,scope=backend-multi
-          cache-to: type=gha,mode=max,scope=backend-multi
 
       - name: Push frontend
         uses: docker/build-push-action@v6
@@ -78,7 +77,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-frontend:${{ steps.tag.outputs.value }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/taskmanager-frontend:latest
           cache-from: type=gha,scope=frontend-multi
-          cache-to: type=gha,mode=max,scope=frontend-multi
 
   verify:
     name: Deploy to throwaway cluster
